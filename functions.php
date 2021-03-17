@@ -5,10 +5,10 @@
  *
  * @param  string  $dir_path  Path to directory
  *
- * @return array|false An array of files
+ * @return array An array of files
  * @throws Exception If a path doesn't exist or isn't a readable directory
  */
-function getListOfFiles(string $dir_path)
+function getListOfFiles(string $dir_path): array
 {
     if ( ! is_dir($dir_path) || ! is_readable($dir_path)) {
         throw new Exception("Failed to open " . "[" . $dir_path . "]" . " directory");
