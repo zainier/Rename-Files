@@ -76,3 +76,28 @@ function getListOfFilesIter(string $dir_path): array
 
     return $files;
 }
+
+/**
+ * Renames a file with current date and time.
+ *
+ * @param  string  $path_to_file  Path to file
+ *
+ * @return bool TRUE on success, FALSE otherwise
+ */
+function renameWithDateAndTime(string $path_to_file): bool
+{
+    if (is_writable($path_to_file)) {
+        $current_date_time = date("-d-m-Y-H-i-s");
+        $path_parts        = pathinfo($path_to_file);
+
+        $pattern  = "/-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])-(19|20)\d\d-([01]\d|2[0-3])-([0-5]\d)-([0-5]\d)$/";
+        $filename = preg_replace($pattern, "", $path_parts["filename"]);
+
+        $ext      = isset($path_parts["extension"]) ? "." . $path_parts["extension"] : "";
+        $new_name = $path_parts["dirname"] . DIRECTORY_SEPARATOR . $filename . $current_date_time . $ext;
+
+        return rename($path_to_file, $new_name);
+    }
+
+    return false;
+}
