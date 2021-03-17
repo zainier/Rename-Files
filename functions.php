@@ -90,7 +90,7 @@ function renameWithDateAndTime(string $path_to_file): bool
         $current_date_time = date("-d-m-Y-H-i-s");
         $path_parts        = pathinfo($path_to_file);
 
-        $pattern  = "/-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])-(19|20)\d\d-([01]\d|2[0-3])-([0-5]\d)-([0-5]\d)$/";
+        $pattern  = "/-(0[1-9]|[12][0-9]|3[01])-(0[1-9]|[12][0-9]|3[01])-(19|20)\d\d-([01]\d|2[0-3])-([0-5]\d)-([0-5]\d)$/";
         $filename = preg_replace($pattern, "", $path_parts["filename"]);
 
         $ext      = isset($path_parts["extension"]) ? "." . $path_parts["extension"] : "";
