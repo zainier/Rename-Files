@@ -5,16 +5,16 @@
  *
  * @param  string  $dir_path  Path to directory
  *
- * @return array An array of files
+ * @return Generator Generator object
  * @throws Exception If a path doesn't exist or isn't a readable directory
  */
-function getListOfFiles(string $dir_path): array
+function getListOfFiles(string $dir_path): Generator
 {
     if ( ! is_dir($dir_path) || ! is_readable($dir_path)) {
         throw new Exception("Failed to open " . "[" . $dir_path . "]" . " directory");
     }
 
-    return getListOfFilesHelper($dir_path);
+    yield from getListOfFilesHelper($dir_path);
 }
 
 /**
@@ -22,31 +22,25 @@ function getListOfFiles(string $dir_path): array
  *
  * @param  string  $dir_path  Path to directory
  *
- * @return array An array of files
+ * @return Generator Generator object
  */
-function getListOfFilesHelper(string $dir_path): array
+function getListOfFilesHelper(string $dir_path): Generator
 {
-    static $files = [];
+    $dh = opendir($dir_path);
 
-    if ($dh = opendir($dir_path)) {
-        while (($entry = readdir($dh)) !== false) {
-            if (in_array($entry, [".", ".."])) {
-                continue;
-            }
-
-            $path_to_entry = $dir_path . DIRECTORY_SEPARATOR . $entry;
-
-            if ( ! is_dir($path_to_entry)) {
-                $files[] = $path_to_entry;
-            } elseif (is_readable($path_to_entry)) {
-                getListOfFilesHelper($path_to_entry);
-            }
+    while (($entry = readdir($dh)) !== false) {
+        if (in_array($entry, [".", ".."])) {
+            continue;
         }
-
-        closedir($dh);
+        $path_to_entry = $dir_path . DIRECTORY_SEPARATOR . $entry;
+        if ( ! is_dir($path_to_entry)) {
+            yield $path_to_entry;
+        } elseif (is_readable($path_to_entry)) {
+            yield from getListOfFilesHelper($path_to_entry);
+        }
     }
 
-    return $files;
+    closedir($dh);
 }
 
 /**
@@ -55,10 +49,10 @@ function getListOfFilesHelper(string $dir_path): array
  *
  * @param  string  $dir_path  Path to directory
  *
- * @return array An array of files
+ * @return Generator Generator object
  * @throws Exception If a path doesn't exist or isn't a readable directory
  */
-function getListOfFilesIter(string $dir_path): array
+function getListOfFilesIter(string $dir_path): Generator
 {
     if ( ! is_dir($dir_path) || ! is_readable($dir_path)) {
         throw new Exception("Failed to open " . "[" . $dir_path . "]" . " directory");
@@ -71,13 +65,9 @@ function getListOfFilesIter(string $dir_path): array
             RecursiveIteratorIterator::CATCH_GET_CHILD
     );
 
-    $files = [];
-
-    foreach ($iterator as $item) {
-        $files[] = $item->getPathname();
+    foreach ($iterator as $file) {
+        yield $file->getPathname();
     }
-
-    return $files;
 }
 
 /**
