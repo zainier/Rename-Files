@@ -27,20 +27,23 @@ function getListOfFiles(string $dir_path): array
 function getListOfFilesHelper(string $dir_path): array
 {
     static $files = [];
-    $entries = scandir($dir_path);
 
-    foreach ($entries as $entry) {
-        if (in_array($entry, [".", ".."])) {
-            continue;
+    if ($dh = opendir($dir_path)) {
+        while (($entry = readdir($dh)) !== false) {
+            if (in_array($entry, [".", ".."])) {
+                continue;
+            }
+
+            $path_to_entry = $dir_path . DIRECTORY_SEPARATOR . $entry;
+
+            if ( ! is_dir($path_to_entry)) {
+                $files[] = $path_to_entry;
+            } elseif (is_readable($path_to_entry)) {
+                getListOfFilesHelper($path_to_entry);
+            }
         }
 
-        $path_to_entry = $dir_path . DIRECTORY_SEPARATOR . $entry;
-
-        if ( ! is_dir($path_to_entry)) {
-            $files[] = $path_to_entry;
-        } elseif (is_readable($path_to_entry)) {
-            getListOfFilesHelper($path_to_entry);
-        }
+        closedir($dh);
     }
 
     return $files;
